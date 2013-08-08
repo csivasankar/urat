@@ -1,0 +1,82 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" 
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+        
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+	  <property name="jndiName" value="jdbc/urat_dev"/>
+	  <property name="lookupOnStartup" value="true"/>
+	  <property name="cache" value="true"/>
+	  <property name="jndiTemplate" ref="wasJndiTemplate"/>
+	</bean>
+	<bean id="wasJndiTemplate" class="org.springframework.jndi.JndiTemplate">
+	  <property name="environment">
+	    <props>
+	      <prop key="java.naming.factory.initial">com.ibm.websphere.naming.WsnInitialContextFactory</prop>
+	    </props>
+	  </property>
+	</bean>
+
+	<context:annotation-config />
+	<mvc:annotation-driven conversion-service="applicationConversionService"/>
+	<!-- Turn on AspectJ @Configurable support -->
+	<context:spring-configured/>
+	<context:component-scan base-package="com.cisco.urat" />
+
+	<mvc:resources location="file:${com.ibm.websphere.servlet.temp.dir}/docs/" mapping="/docs/**" />
+	<mvc:resources location="/" mapping="/resources/**" />
+	
+	<mvc:default-servlet-handler/>
+	
+	<mvc:view-controller path="/" view-name="index"/>
+	<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping" />
+
+	<!-- freemarker config -->
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPaths" value="/WEB-INF/ftl/"/>
+	</bean>
+	
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".ftl" />
+	</bean>
+	
+	<!-- Hibernate config -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="packagesToScan" value="com.cisco.urat.model" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean class="com.cisco.urat.controller.ApplicationConversionServiceFactoryBean" id="applicationConversionService"/>
+</beans>
+

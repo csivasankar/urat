@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/WEB-INF/ftl/decorators">
+  <excludes>
+    <pattern>**wservices**</pattern>
+    <pattern>**ajax=true**</pattern>
+    <pattern>**/docs/**</pattern>
+  </excludes>
+  	<decorator name="public" page="public.ftl">
+		<pattern>/*</pattern>
+	</decorator>	
+</decorators>
