@@ -64,7 +64,8 @@ public class DocumentController {
 		uiModel.addAttribute("categoryOptions", getCategoryMap());
 		uiModel.addAttribute("stageOptions", getStageMap());
 	}
-
+	
+	/* build category map */
 	private Map<String, String> getCategoryMap() {
 		Map<String, String> optionMap = new LinkedHashMap<String, String>();
 		optionMap.put("", "Select");
